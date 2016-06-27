@@ -16,21 +16,33 @@ type Student
     unobservable_score_liberal_arts::Float64
 end
 
-function generate_students(students_num, distribution, error_distribution)
+function generate_students(students_num, distribution, error_distribution; indep = false)
     Students_list = fill(Student(), students_num)
-    for i in 1:students_num####Studentsの成績と観測不能な理系・文系への適正が全て独立な場合
-        Students_list[i].score = get_score(distribution, error_distribution)
-        Students_list[i].unobservable_score_science = get_score(distribution, error_distribution)
-        Students_list[i].unobservable_score_science = get_score(distribution, error_distribution)
+    for i in 1:students_num
+        if indep####Studentsの成績と観測不能な理系・文系への適正が全て独立な場合
+            Students_list[i].score = get_score(distribution, error_distribution)
+            Students_list[i].unobservable_score_science = get_score(distribution, error_distribution)
+            Students_list[i].unobservable_score_science = get_score(distribution, error_distribution)
+        else
+            Students_list[i].score = get_score(distribution, error_distribution)
+            Students_list[i].unobservable_score_science = Students_list[i].score(1 + 0.2*(rand() + 0.5))
+            Students_list[i].unobservable_score_science = Students_list[i].score(1 + 0.2*(rand() + 0.5))
+        end
     end
 end
 
-function generate_students(students_num, mu, sigma2, sigma2_error)
+function generate_students(students_num, mu, sigma2, sigma2_error; indep=false)
     Students_list = fill(Student(), students_num)
     for i in 1:students_num####Studentsの成績と観測不能な理系・文系への適正が全て独立な場合
-        Students_list[i].score = get_score(mu, sigma2, sigma2_error)
-        Students_list[i].unobservable_score_science = get_score(mu, sigma2, sigma2_error)
-        Students_list[i].unobservable_score_science = get_score(mu, sigma2, sigma2_error)
+        if indep
+            Students_list[i].score = get_score(mu, sigma2, sigma2_error)
+            Students_list[i].unobservable_score_science = get_score(mu, sigma2, sigma2_error)
+            Students_list[i].unobservable_score_science = get_score(mu, sigma2, sigma2_error)
+        else
+            Students_list[i].score = get_score(mu, sigma2, sigma2_error)
+            Students_list[i].unobservable_score_science = Students_list[i].score(1 + 0.2*(rand() + 0.5))
+            Students_list[i].unobservable_score_science = Students_list[i].score(1 + 0.2*(rand() + 0.5))
+        end
     end
 end
 
