@@ -53,13 +53,14 @@ type Faculty
     id::Int
     prefs::Array{Int, 1}
     characteristic::Float64
+    level::Float64
     cap::Int
 end
 
 function generate_faculties(faculty_num, students_num)
     faculties_list = Array(Faculty, faculty_num)
     for i in 1:faculty_num
-        faculties_list[i] = Faculty(i, Array(Int, students_num+1), rand(), students_num-2)#students_num-2はキャップ数(とりあえず)
+        faculties_list[i] = Faculty(i, Array(Int, students_num+1), rand(), rand(), students_num-2)#students_num-2はキャップ数(とりあえず)
     end
     return faculties_list
 end
