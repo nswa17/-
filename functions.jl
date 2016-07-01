@@ -1,4 +1,13 @@
 include("da.jl")
+#Todo: comparison b/w da matching and normal matching
+#Todo: comparison between evaluation functions
+#Todo: comparison of alphas
+#Todo: how many unmatched?
+#Todo: compare these results and test
+#Todo: 生徒の分布に対してrobust?
+#Todo: cap on num of fac stu apply to
+#Todo: 上の数字を変えていくと...?
+
 
 type Student
     id::Int
@@ -65,10 +74,16 @@ function generate_faculties(faculty_num, students_num)
     faculties_list = Array(Faculty, faculty_num)
     for i in 1:faculty_num
         faculties_list[i] = Faculty(i, Array(Int, students_num+1), rand(), rand(), students_num-1, [rand(1:6)])#students_num-1はキャップ数(とりあえず)
-    end
+    end#id, prefs, preference, level, cap, available_for
     return faculties_list
 end
 
+function generate_faculties(preference_list, level_list, cap_list, available_for_list, students_num)
+    faculties_list = Array(Faculty, preference_list)
+    for i in 1:length(preference_list)
+        faculties_list[i] = Faculty(i, Array(Int, students_num+1), preference_list[i], level_list[i], cap_list[i], available_for_list[i])
+    end
+end
 #get_sorted_students_list = (students_list, faculties_list) -> map(f -> get_sorted_students(students_list, f), faculties_list)
 
 function set_prefs_faculties(faculties_list, students_list)
@@ -115,6 +130,8 @@ end
 function evaluate_matched3(s_matched, s_prefs)#min:1
     return 2 + sum([-1/findfirst(s_prefs[:, i], r) for (i, r) in enumerate(s_matched)])/size(s_prefs, 2)
 end
+
+function easy_matching(); end
 
 #####以下デバッグ用
 faculty_num = 4
