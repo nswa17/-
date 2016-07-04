@@ -18,6 +18,7 @@ type Student
 end
 
 type Faculty
+    name::AbstractString
     id::Int
     prefs::Array{Int, 1}
     preference::Float64
@@ -72,7 +73,15 @@ end
 function generate_faculties(faculty_num, students_num)
     faculties_list = Array(Faculty, faculty_num)
     for i in 1:faculty_num
-        faculties_list[i] = Faculty(i, Array(Int, students_num+1), rand(), rand(), students_num-1, [rand(1:6)])#students_num-1はキャップ数(とりあえず)
+        faculties_list[i] = Faculty(string(i), i, Array(Int, students_num+1), rand(), rand(), students_num-1, [rand(1:6)])#students_num-1はキャップ数(とりあえず)
+    end#id, prefs, preference, level, cap, available_for
+    return faculties_list
+end
+
+function generate_faculties(faculty_names, caps, available_for, students_num)
+    faculties_list = Array(Faculty, length(faculty_names))
+    for i in 1:length(faculty_names)
+        faculties_list[i] = Faculty(faculty_names[i], i, Array(Int, students_num+1), rand(), rand(), caps[i], available_for[i])#students_num-1はキャップ数(とりあえず)
     end#id, prefs, preference, level, cap, available_for
     return faculties_list
 end
@@ -80,7 +89,7 @@ end
 function generate_faculties(preference_list, level_list, cap_list, available_for_list, students_num)
     faculties_list = Array(Faculty, preference_list)
     for i in 1:length(preference_list)
-        faculties_list[i] = Faculty(i, Array(Int, students_num+1), preference_list[i], level_list[i], cap_list[i], available_for_list[i])
+        faculties_list[i] = Faculty(string(i), i, Array(Int, students_num+1), preference_list[i], level_list[i], cap_list[i], available_for_list[i])
     end
 end
 #get_sorted_students_list = (students_list, faculties_list) -> map(f -> get_sorted_students(students_list, f), faculties_list)
@@ -137,6 +146,11 @@ function evaluate_matched4(s_matched, s_prefs)#min:1
 end
 
 function easy_matching(); end
+
+function read_faculty_data(filename)
+    df = readtable("revised.csv")
+    return generate_faculties(df[:1], df[:2], df[:3])
+end
 
 #####以下デバッグ用
 faculty_num = 4
