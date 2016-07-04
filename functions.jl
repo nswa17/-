@@ -1,13 +1,13 @@
 include("da.jl")
 #Todo: comparison b/w da matching and normal matching
-#Todo: comparison between evaluation functions
+#Todo: evaluation functions
 #Todo: comparison of alphas
 #Todo: how many unmatched?
 #Todo: compare these results and test
 #Todo: 生徒の分布に対してrobust?
 #Todo: cap on num of fac stu apply to
 #Todo: 上の数字を変えていくと...?
-
+#Todo: Stu vs Faculty proposing
 
 type Student
     id::Int
