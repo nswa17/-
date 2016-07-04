@@ -1,12 +1,11 @@
 include("da.jl")
 #Todo: comparison b/w da matching and normal matching
-#Todo: comparison of alphas
 #Todo: how many unmatched?
 #Todo: compare these results and test
 #Todo: 生徒の分布に対してrobust?
 #Todo: cap on num of fac stu apply to
 #Todo: 上の数字を変えていくと...?
-#Todo: Stu vs Faculty proposing
+#Todo: Stu proposing vs Faculty proposing
 
 type Student
     id::Int
@@ -79,20 +78,21 @@ function generate_faculties(faculty_num, students_num)
     return faculties_list
 end
 
-function generate_faculties(faculty_names, caps, available_for, students_num)
+function generate_faculties(ids, faculty_names, caps, available_for_list, students_num)
     faculties_list = Array(Faculty, length(faculty_names))
     for i in 1:length(faculty_names)
-        faculties_list[i] = Faculty(faculty_names[i], i, Array(Int, students_num+1), rand(), rand(), caps[i], [available_for[i]])#students_num-1はキャップ数(とりあえず)
+        faculties_list[i] = Faculty(faculty_names[i], ids[i], Array(Int, students_num+1), rand(), rand(), caps[i], [available_for_list[i]])#students_num-1はキャップ数(とりあえず)
     end#id, prefs, preference, level, cap, available_for
     return faculties_list
 end
-
+"""
 function generate_faculties(preference_list, level_list, cap_list, available_for_list, students_num)
     faculties_list = Array(Faculty, preference_list)
     for i in 1:length(preference_list)
         faculties_list[i] = Faculty(string(i), i, Array(Int, students_num+1), preference_list[i], level_list[i], cap_list[i], available_for_list[i])
     end
 end
+"""
 #get_sorted_students_list = (students_list, faculties_list) -> map(f -> get_sorted_students(students_list, f), faculties_list)
 
 function set_prefs_faculties(faculties_list, students_list)
@@ -132,8 +132,8 @@ function generate_prefs(as)
     return prefs
 end
 
-function generate_real_prefs(as)
-    prefs = Array(Int, (length(as[1].prefs), length(as)))
+function get_real_prefs(as)
+    prefs = Array(Int, (length(as[1].real_prefs), length(as)))
     for i in 1:length(as)
         prefs[:, i] = as[i].real_prefs
     end
@@ -165,5 +165,5 @@ function easy_matching(); end
 
 function read_faculty_data(filename, student_num)
     df = readtable("revised.csv")
-    return generate_faculties(df[:1], df[:2], df[:3], student_num)
+    return generate_faculties(df[:1], df[:2], df[:3], df[:4], student_num)
 end
