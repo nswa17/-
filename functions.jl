@@ -1,6 +1,5 @@
 include("da.jl")
 #Todo: comparison b/w da matching and normal matching
-#Todo: evaluation functions
 #Todo: comparison of alphas
 #Todo: how many unmatched?
 #Todo: compare these results and test
@@ -15,7 +14,7 @@ type Student
     preference::Float64
     current_faculty::Int#所属する科類 文一 => 1, 理一 => 4
     prefs::Array{Int, 1}
-    emphasis_on_preference::Float64#0.0~1.0 どれくらい自分の選考を成績よりも重視するか
+    preference_first::Float64#0.0~1.0 どれくらい自分の選考を成績よりも重視するか
 end
 
 type Faculty
@@ -60,10 +59,10 @@ function generate_students(students_num, mu, sigma2, sigma2_error, faculty_num)
     return students_list
 end
 
-function get_sorted_faculties_id_list(faculties_list, student)
+function get_sorted_faculties_id_list(faculties_list, student, sort_func)
     available_faculties_list = filter(f -> in(student.current_faculty, f.available_for), faculties_list)
     sorted_faculties_id_list = Array(Int, length(faculties_list)+1)
-    sorted_faculties_id_list[1:length(available_faculties_list)] = map(f -> f.id, sort(available_faculties_list, by = f -> -student.emphasis_on_preference*abs(f.preference-student.preference)-(1-student.emphasis_on_preference)*abs(f.level-student.level)))#sort関数は適当
+    sorted_faculties_id_list[1:length(available_faculties_list)] = map(f -> f.id, sort(available_faculties_list, by = f -> sort_func(student, f)))#sort関数は適当
     sorted_faculties_id_list[length(available_faculties_list) + 1] = 0
     #println(length())
     sorted_faculties_id_list[(length(available_faculties_list) + 2):end] = map(f -> f.id, filter(f -> !in(f, available_faculties_list), faculties_list))
@@ -103,7 +102,8 @@ end
 
 function set_prefs_students(students_list, faculties_list)
     for student in students_list
-        student.prefs = get_sorted_faculties_id_list(faculties_list, student)
+        sort_func = (student, faculty) -> -student.preference_first*abs(faculty.preference-student.preference)-(1-student.preference_first)*abs(faculty.level-student.level)
+        student.prefs = get_sorted_faculties_id_list(faculties_list, student, sort_func)
     end
 end
 
@@ -119,7 +119,7 @@ function generate_caps(as)
     return Int[a.cap for a in as]
 end
 
-function evaluate_matched(s_matched, s_prefs)#min:1
+function evaluate_matched(s_matched, s_prefs)#min:1 the lower the better
     return sum([findfirst(s_prefs[:, i], r) for (i, r) in enumerate(s_matched)])/size(s_prefs, 2)
 end
 
@@ -128,7 +128,12 @@ function evaluate_matched2(s_matched, s_prefs)#min:1
 end
 
 function evaluate_matched3(s_matched, s_prefs)#min:1
-    return 2 + sum([-1/findfirst(s_prefs[:, i], r) for (i, r) in enumerate(s_matched)])/size(s_prefs, 2)
+    return 2 + sum([(findfirst(s_prefs[:, i], r) == 0 ? 0 : -1/findfirst(s_prefs[:, i], r)) for (i, r) in enumerate(s_matched)])/size(s_prefs, 2)
+end
+
+
+function evaluate_matched4(s_matched, s_prefs)#min:1
+    return 1 + sum([log(findfirst(s_prefs[:, i], r)) for (i, r) in enumerate(s_matched)])/size(s_prefs, 2)
 end
 
 function easy_matching(); end
