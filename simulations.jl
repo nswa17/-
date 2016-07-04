@@ -39,4 +39,4 @@ println(df[1, 1])
 length(fac_names)
 
 df_new = DataFrame(F=fac_names, C=fac_caps, A=fac_available_for)
-writetable("revised_csv", df_new)
+writetable("revised.csv", df_new)

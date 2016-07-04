@@ -81,7 +81,7 @@ end
 function generate_faculties(faculty_names, caps, available_for, students_num)
     faculties_list = Array(Faculty, length(faculty_names))
     for i in 1:length(faculty_names)
-        faculties_list[i] = Faculty(faculty_names[i], i, Array(Int, students_num+1), rand(), rand(), caps[i], available_for[i])#students_num-1はキャップ数(とりあえず)
+        faculties_list[i] = Faculty(faculty_names[i], i, Array(Int, students_num+1), rand(), rand(), caps[i], [available_for[i]])#students_num-1はキャップ数(とりあえず)
     end#id, prefs, preference, level, cap, available_for
     return faculties_list
 end
@@ -147,9 +147,9 @@ end
 
 function easy_matching(); end
 
-function read_faculty_data(filename)
+function read_faculty_data(filename, students_num)
     df = readtable("revised.csv")
-    return generate_faculties(df[:1], df[:2], df[:3])
+    return generate_faculties(df[:1], df[:2], df[:3], students_num)
 end
 
 #####以下デバッグ用
