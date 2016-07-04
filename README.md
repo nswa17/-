@@ -19,24 +19,57 @@
 
 ### マッチング例
 
+## ライブラリ使い方
+
+```julia
+using DataFrames
+using PyPlot
+using ExcelReaders
+
+include("functions.jl")
+student_num = 3000 #student number
+mu = 0.5 #mean of scores students have (now must be standardized to [0, 1])
+sigma2 = 0.2 #variance of students scores
+sigma2_error = 0.05 #variance of the error the score has
+preference = 0.5 #how much students want to persue their preference [0 ~ 1]
+
+faculties_list = read_faculty_data("revised.csv", student_num)
+faculty_num = length(faculties_list)
+students_list = generate_students(student_num, mu, sigma2, sigma2_error, faculty_num, () -> preference)
+
+set_prefs_faculties(faculties_list, students_list)
+set_prefs_students(students_list, faculties_list)
+
+s_prefs = generate_prefs(students_list)
+s_real_prefs = get_real_prefs(students_list)
+f_prefs = generate_prefs(faculties_list)
+caps = generate_caps(faculties_list)
+
+s_matched, f_matched, indptr = DA.call_match(s_prefs, f_prefs, caps)# call matching
+```
+
 ### 学科
 ```julia
 type Faculty
+    name::AbstractString
     id::Int
     prefs::Array{Int, 1}
-    characteristic::Float64
+    preference::Float64
     level::Float64
     cap::Int
+    available_for::Array{Int, 1}
 end
 ```
 ### 学生
 ```julia
 type Student
     id::Int
-    score::Float64
-    characteristic::Float64
-    faculty::Int#所属する科類 文一 => 1, 理一 => 4
+    level::Float64
+    preference::Float64
+    current_faculty::Int
     prefs::Array{Int, 1}
+    real_prefs::Array{Int, 1}
+    preference_first::Float64
 end
 ```
 
