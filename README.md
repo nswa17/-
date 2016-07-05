@@ -19,7 +19,7 @@
 
 ### マッチング例
 
-## ライブラリ使い方
+## 使い方
 
 ```julia
 using DataFrames
