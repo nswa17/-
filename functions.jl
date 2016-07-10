@@ -81,7 +81,16 @@ end
 function generate_faculties(ids, faculty_names, caps, available_for_list, students_num)
     faculties_list = Array(Faculty, length(faculty_names))
     for i in 1:length(faculty_names)
-        faculties_list[i] = Faculty(faculty_names[i], ids[i], Array(Int, students_num+1), rand(), rand(), caps[i], [available_for_list[i]])#students_num-1はキャップ数(とりあえず)
+        if available_for_list[i] == 4
+            available_for = [1, 2, 3]
+        elseif available_for_list[i] == 8
+            available_for = [5, 6, 7]
+        elseif available_for_list[i] == 9
+            available_for = [1, 2, 3, 5, 6, 7]
+        else
+            available_for = [available_for_list[i]]
+        end
+        faculties_list[i] = Faculty(faculty_names[i], ids[i], Array(Int, students_num+1), rand(), rand(), caps[i], available_for)#students_num-1はキャップ数(とりあえず)
     end#id, prefs, preference, level, cap, available_for
     return faculties_list
 end

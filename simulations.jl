@@ -42,5 +42,5 @@ println(fac_caps)
 println(df[1, 1])
 length(fac_names)
 
-df_new = DataFrame(ID=ids, F=fac_names, C=fac_caps, A=fac_available_for)
+df_new = DataFrame(ID=ids, FacultyName=fac_names, Cap=fac_caps, AvailableFor=fac_available_for)
 writetable("revised.csv", df_new)
