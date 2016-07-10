@@ -92,8 +92,6 @@ function generate_faculties(preference_list, level_list, cap_list, available_for
         faculties_list[i] = Faculty(string(i), i, Array(Int, students_num+1), preference_list[i], level_list[i], cap_list[i], available_for_list[i])
     end
 end
-"""
-#get_sorted_students_list = (students_list, faculties_list) -> map(f -> get_sorted_students(students_list, f), faculties_list)
 
 function set_prefs_faculties(faculties_list, students_list)
     for faculty in faculties_list
@@ -107,6 +105,15 @@ function set_prefs_faculties(faculties_list, students_list)
                 faculty.prefs[i] = 0
             end
         end
+    end
+end
+"""
+
+function set_prefs_faculties(faculties_list, students_list)
+    for faculty in faculties_list
+        sorted_students_list = sort(students_list, by = s -> s.level)
+        faculty.prefs[1:end-1] = map(s -> s.id, sorted_students_list)
+        faculty.prefs[end] = 0
     end
 end
 
@@ -156,12 +163,54 @@ function evaluate_matched3(s_matched, s_prefs)#min:1
     return 2 + sum([(findfirst(s_prefs[:, i], r) == 0 ? 0 : -1/findfirst(s_prefs[:, i], r)) for (i, r) in enumerate(s_matched)])/size(s_prefs, 2)
 end
 
-
 function evaluate_matched4(s_matched, s_prefs)#min:1
     return 1 + sum([log(findfirst(s_prefs[:, i], r)) for (i, r) in enumerate(s_matched)])/size(s_prefs, 2)
 end
 
-function easy_matching(); end
+function evaluate_matched5(s_matched, s_prefs)
+    return 1 + sum([r == 0 for (i, r) in enumerate(s_matched)])/length(s_matched)
+end
+
+function easy_matching(students_list, caps)
+    s_prefs = generate_prefs(students_list)
+    student_num = size(s_prefs, 2)
+    students_challenge = trues(student_num)
+    faculty_num = length(caps)
+
+    f_matched = zeros(Int, sum(caps))
+    f_vacants = copy(caps)
+    s_matched = zeros(Int, students_num)
+    indptr = Array(Int, faculty_num+1)
+    i::Int = 0
+    indptr[1] = 1
+    for i in 1:faculty_num
+        indptr[i+1] = indptr[i] + caps[i]
+    end
+
+    for stage in 1:faculty_num
+        applying_students = []
+        for s in students_list
+            if s_prefs[stage, s.id] == 0
+                students_challenge[s.id] = false
+            elseif students_challenge[s.id] == true
+                push!(applying_students, s)
+            end
+        end
+        for j in 1:faculty_num
+            faculty_applying_students = filter(s -> s.prefs[stage] == j, applying_students)
+            sort(faculty_applying_students, by=s -> s.level, rev=true)
+            for s in faculty_applying_students
+                if f_vacants[j] > 0
+                    f_matched[indptr[j] + caps[j] - f_vacants[j]] = s.id
+                    s_matched[s.id] = j
+                    students_challenge[s.id] = false
+                    f_vacants[j] -= 1
+                end
+            end
+        end
+    end
+    return s_matched, f_matched, indptr
+end
 
 function read_faculty_data(filename, student_num)
     df = readtable("revised.csv")
