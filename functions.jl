@@ -180,7 +180,7 @@ function evaluate_matched5(s_matched, s_prefs)
     return 1 + sum([r == 0 for (i, r) in enumerate(s_matched)])/length(s_matched)
 end
 
-function easy_matching(students_list, caps)
+function easy_matching(students_list, caps, max_stage)
     s_prefs = generate_prefs(students_list)
     student_num = size(s_prefs, 2)
     students_challenge = trues(student_num)
@@ -196,7 +196,7 @@ function easy_matching(students_list, caps)
         indptr[i+1] = indptr[i] + caps[i]
     end
 
-    for stage in 1:faculty_num
+    for stage in 1:max_stage
         applying_students = []
         for s in students_list
             if s_prefs[stage, s.id] == 0
