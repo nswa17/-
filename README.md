@@ -127,6 +127,6 @@ students = generate_students(s_num)
 s_prefs, f_prefs, caps = get_random_prefs(faculties, students)
 ```
 
-### Reference
+## Reference
 
 [進学振分け準則・進学者受入予定表等 - 総合文化研究科](http://www.c.u-tokyo.ac.jp/zenki/news/kyoumu/file/2014/h27_shinfuritebiki.pdf)

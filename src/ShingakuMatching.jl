@@ -20,7 +20,7 @@ function read_faculties(filename=dirname(@__FILE__)*"/../dat/faculties_and_caps_
     return _generate_faculties(size(df, 1), collect(df[:2]), collect(df[:3]))
 end
 
-function _generate_faculties(faculties_num::Int, caps::Vector{Int}, available_for_list::Vector{Int})
+function _generate_faculties(faculties_num::Int, caps::Vector{Int}, available_for_list::Vector{Vector{Int}})
     faculties = Array(Faculty, faculties_num)
     for i in 1:faculties_num
         if available_for_list[i] == 4# 文1, 2, 3類
@@ -45,6 +45,14 @@ function generate_students(students_num::Int, current_faculties=rand([1, 2, 3, 5
     return students
 end
 
+function utility_factory(beta::Float64, gamma::Float64, target_vertical_quality_list::Vector{Int}, relative_quality_list::Vector{Int}, target_relative_quality_list::Vector{Int}, error_dist::UnivariateDistribution)
+    return function(id, target_id)
+        return beta * target_vertical_quality_list[target_id] - gamma * (relative_quality_list[id] - relative_quality_list[target_id])^2 + rand(error_dist)
+    end
+end
+
+function f_utility_factory
+
 function get_random_prefs(
     faculties::Vector{Faculty},
     students::Vector{Student};
@@ -66,8 +74,8 @@ function get_random_prefs(
     faculty_relative_quality_list = rand(faculty_relative_dist, num_f)
     student_relative_quality_list = rand(student_relative_dist, num_s)
 
-    s_utility = (s_id, f_id) -> beta * faculty_relative_quality_list[f_id] - gamma * (student_vertical_quality_list[s_id] - faculty_vertical_quality_list[f_id])^2 + rand(error_dist)
-    f_utility = (f_id, s_id) -> beta * student_relative_quality_list[s_id] - gamma * (student_vertical_quality_list[s_id] - faculty_vertical_quality_list[f_id])^2 + rand(error_dist)
+    s_utility = utility_factory(beta, gamma, faculty_vertical_quality_list, student_relative_quality_list, faculty_relative_quality_list, error_dist)
+    f_utility = utility_factory(beta, gamma, student_vertical_quality_list, faculty_relative_quality_list, student_relative_quality_list, error_dist)
 
     faculty_utility = Array(Float64, num_s, num_f)
     student_utility = Array(Float64, num_f, num_s)
@@ -91,9 +99,9 @@ function get_prefs(
     num_f = length(faculties)
     num_s = length(students)
 
-    caps::Vector{Int} = collect(map(f -> f.cap, faculties))
+    caps::Vector{Int} = collect(map(f -> f.cap == 0 ? num_s : f.cap, faculties))
     s_prefs = Vector{Int}[]
-    f_prefs =Vector{Int}[]
+    f_prefs = Vector{Int}[]
 
     for s_id in 1:num_s
         raw_s_pref = sort(1:num_f, by=f_id -> student_utility[f_id, s_id], rev=true)
@@ -104,7 +112,9 @@ function get_prefs(
 
     for f_id in 1:num_f
         raw_f_pref = sort(1:num_s, by=s_id -> faculty_utility[s_id, f_id], rev=true)
-        push!(f_prefs, collect(raw_f_pref))
+        f_pref = filter(s_id -> students[s_id].current_faculty in faculties[f_id].available_for, raw_f_pref)
+
+        push!(f_prefs, collect(f_pref))
     end
 
     return s_prefs, f_prefs, caps
