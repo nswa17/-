@@ -74,7 +74,7 @@ epsilon_{ij} はペア(i, j)に対するidiosyncratic termである.
 
 各生徒の応募数に制限をかけたい時にはmax_applicationsに制限数を渡す. (デフォルト0: 制限なし)
 
-returns `s_prefs::Vector{Vector{Int}}, f_prefs::Vector{Vector{Int}}, caps::Vector{Int}`
+returns `s_prefs::Vector{Vector{Int}}, d_prefs::Vector{Vector{Int}}, caps::Vector{Int}`
 
 #### get_prefs
 ```julia
@@ -89,11 +89,11 @@ get_prefs(
 
 学部, 生徒のutilityを指定して選好表を生成.
 
-returns `s_prefs::Vector{Vector{Int}}, f_prefs::Vector{Vector{Int}}, caps::Vector{Int}`
+returns `s_prefs::Vector{Vector{Int}}, d_prefs::Vector{Vector{Int}}, caps::Vector{Int}`
 
 #### calc_r_department
 ```julia
-calc_r_department(f_matched::Vector{Int}, indptr::Vector{Int}, f_prefs::Vector{Vector{Int}})
+calc_r_department(d_matched::Vector{Int}, indptr::Vector{Int}, d_prefs::Vector{Vector{Int}})
 ```
 
 マッチした学部全体について, 選好表におけるマッチ相手の生徒の順位を平均した値を返す.
@@ -131,7 +131,7 @@ departments = read_data()
 s_num = 3000 #number of students
 students = generate_students(s_num)
 
-s_prefs, f_prefs, caps = get_random_prefs(departments, students)
+s_prefs, d_prefs, caps = get_random_prefs(departments, students)
 ```
 
 ## Reference

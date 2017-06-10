@@ -47,7 +47,7 @@ end
 
 function utility_factory(beta::Float64, gamma::Float64, target_vertical_quality_list::Vector{Float64}, relative_quality_list::Vector{Float64}, target_relative_quality_list::Vector{Float64}, error_dist::UnivariateDistribution)
     return function(id, target_id)
-        return beta * target_vertical_quality_list[target_id] - gamma * (relative_quality_list[id] - relative_quality_list[target_id])^2 + rand(error_dist)
+        return beta * target_vertical_quality_list[target_id] - gamma * (relative_quality_list[id] - target_relative_quality_list[target_id])^2 + rand(error_dist)
     end
 end
 
@@ -73,14 +73,14 @@ function get_random_prefs(
     student_relative_quality_list = rand(student_relative_dist, num_s)
 
     s_utility = utility_factory(beta, gamma, department_vertical_quality_list, student_relative_quality_list, department_relative_quality_list, error_dist)
-    f_utility = utility_factory(beta, gamma, student_vertical_quality_list, department_relative_quality_list, student_relative_quality_list, error_dist)
+    d_utility = utility_factory(beta, gamma, student_vertical_quality_list, department_relative_quality_list, student_relative_quality_list, error_dist)
 
     department_utility = Array(Float64, num_s, num_d)
     student_utility = Array(Float64, num_d, num_s)
-    for f_id in 1:num_d
+    for d_id in 1:num_d
         for s_id in 1:num_s
-            department_utility[s_id, f_id] = f_utility(f_id, s_id)
-            student_utility[f_id, s_id] = s_utility(s_id, f_id)
+            department_utility[s_id, d_id] = d_utility(d_id, s_id)
+            student_utility[d_id, s_id] = s_utility(s_id, d_id)
         end
     end
 
@@ -99,32 +99,32 @@ function get_prefs(
 
     caps::Vector{Int} = collect(map(f -> f.cap == 0 ? num_s : f.cap, departments))
     s_prefs = Vector{Int}[]
-    f_prefs = Vector{Int}[]
+    d_prefs = Vector{Int}[]
 
     for s_id in 1:num_s
-        raw_s_pref = sort(1:num_d, by=f_id -> student_utility[f_id, s_id], rev=true)
-        s_pref = filter(f_id -> students[s_id].stream in departments[f_id].available_for, raw_s_pref)
+        raw_s_pref = sort(1:num_d, by=d_id -> student_utility[d_id, s_id], rev=true)
+        s_pref = filter(d_id -> students[s_id].stream in departments[d_id].available_for, raw_s_pref)
 
         push!(s_prefs, max_applications > 0 ? collect(take(s_pref, max_applications)) : s_pref)
     end
 
-    for f_id in 1:num_d
-        raw_f_pref = sort(1:num_s, by=s_id -> department_utility[s_id, f_id], rev=true)
-        f_pref = filter(s_id -> students[s_id].stream in departments[f_id].available_for, raw_f_pref)
+    for d_id in 1:num_d
+        raw_d_pref = sort(1:num_s, by=s_id -> department_utility[s_id, d_id], rev=true)
+        d_pref = filter(s_id -> students[s_id].stream in departments[d_id].available_for, raw_d_pref)
 
-        push!(f_prefs, collect(f_pref))
+        push!(d_prefs, collect(d_pref))
     end
 
-    return s_prefs, f_prefs, caps
+    return s_prefs, d_prefs, caps
 end
 
-function calc_r_department(f_matched::Vector{Int}, indptr::Vector{Int}, f_prefs::Vector{Vector{Int}})
-    matched_num = length(f_matched)
+function calc_r_department(d_matched::Vector{Int}, indptr::Vector{Int}, d_prefs::Vector{Vector{Int}})
+    matched_num = length(d_matched)
     sum_rank = 0
-    for f_id in 1:length(indptr)-1
-        for ind in indptr[f_id]:indptr[f_id+1]-1
-            s_id = f_matched[ind]
-            sum_rank += findfirst(f_prefs[f_id], s_id)
+    for d_id in 1:length(indptr)-1
+        for ind in indptr[d_id]:indptr[d_id+1]-1
+            s_id = d_matched[ind]
+            sum_rank += findfirst(d_prefs[d_id], s_id)
         end
     end
     return matched_num != 0 ? sum_rank / matched_num : 0
@@ -133,10 +133,10 @@ end
 function calc_r_student(s_matched::Vector{Int}, s_prefs::Vector{Vector{Int}})
     matched_num = 0
     sum_rank = 0
-    for (s_id, f_id) in enumerate(s_matched)
-        if f_id != 0
+    for (s_id, d_id) in enumerate(s_matched)
+        if d_id != 0
             matched_num += 1
-            sum_rank += findfirst(s_prefs[s_id], f_id)
+            sum_rank += findfirst(s_prefs[s_id], d_id)
         end
     end
     return matched_num != 0 ? sum_rank / matched_num : 0

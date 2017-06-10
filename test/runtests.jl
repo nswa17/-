@@ -33,54 +33,54 @@ import Distributions: Bernoulli
         error_dist = Bernoulli(0)
 
         s_utility = ShingakuMatching.utility_factory(beta, gamma, department_vertical_quality_list, student_relative_quality_list, department_relative_quality_list, error_dist)
-        f_utility = ShingakuMatching.utility_factory(beta, gamma, student_vertical_quality_list, department_relative_quality_list, student_relative_quality_list, error_dist)
+        d_utility = ShingakuMatching.utility_factory(beta, gamma, student_vertical_quality_list, department_relative_quality_list, student_relative_quality_list, error_dist)
         @test s_utility(1, 1) == 0.7
         @test s_utility(1, 2) == 0.4 - 1
         @test s_utility(2, 1) == 0.7 - 1
         @test s_utility(2, 2) == 0.4
-        @test f_utility(1, 1) == 0.5
-        @test f_utility(1, 2) == 0.6 - 1
-        @test f_utility(2, 1) == 0.5 - 1
-        @test f_utility(2, 2) == 0.6
+        @test d_utility(1, 1) == 0.5
+        @test d_utility(1, 2) == 0.6 - 1
+        @test d_utility(2, 1) == 0.5 - 1
+        @test d_utility(2, 2) == 0.6
     end
     s_num = 2
-    f_num = 2
+    d_num = 2
     departments = [ShingakuMatching.Department(i, 0, [1, 2, 3, 5, 6, 7]) for i in 1:s_num]
     departments_capped = [ShingakuMatching.Department(i, 1, [1, 2, 3, 5, 6, 7]) for i in 1:s_num]
     departments_restricted = [ShingakuMatching.Department(i, 0, [7]) for i in 1:s_num]
-    students = [ShingakuMatching.Student(i, rand([1, 2, 3, 5, 6])) for i in 1:f_num]
+    students = [ShingakuMatching.Student(i, rand([1, 2, 3, 5, 6])) for i in 1:d_num]
     department_utility = [0.5 -0.5; -0.4 0.6]
     student_utility = [0.7 -0.3; -0.6 0.4]
     @testset "get_prefs" begin
         @testset "without caps" begin
-            s_prefs, f_prefs, caps = get_prefs(departments, students, department_utility, student_utility)
+            s_prefs, d_prefs, caps = get_prefs(departments, students, department_utility, student_utility)
 
             @test s_prefs == [[1, 2], [2, 1]]
-            @test f_prefs == [[1, 2], [2, 1]]
-            @test caps == fill(s_num, f_num)
+            @test d_prefs == [[1, 2], [2, 1]]
+            @test caps == fill(s_num, d_num)
         end
         @testset "with caps" begin
-            s_prefs, f_prefs, caps = get_prefs(departments_capped, students, department_utility, student_utility)
+            s_prefs, d_prefs, caps = get_prefs(departments_capped, students, department_utility, student_utility)
 
             @test s_prefs == [[1, 2], [2, 1]]
-            @test f_prefs == [[1, 2], [2, 1]]
-            @test caps == ones(Int, f_num)
+            @test d_prefs == [[1, 2], [2, 1]]
+            @test caps == ones(Int, d_num)
         end
         @testset "with caps" begin
-            s_prefs, f_prefs, caps = get_prefs(departments_restricted, students, department_utility, student_utility)
+            s_prefs, d_prefs, caps = get_prefs(departments_restricted, students, department_utility, student_utility)
 
             @test s_prefs == [[], []]
-            @test f_prefs == [[], []]
-            @test caps == fill(s_num, f_num)
+            @test d_prefs == [[], []]
+            @test caps == fill(s_num, d_num)
         end
     end
     s_matched = [1, 2]
     s_prefs = [[2, 1], [2, 1]]
-    f_matched = [1, 2]
+    d_matched = [1, 2]
     indptr = [2, 3]
-    f_prefs = [[1, 2], [2, 1]]
+    d_prefs = [[1, 2], [2, 1]]
     @testset "calc_r_department" begin
-        @test calc_r_department(f_matched, indptr, f_prefs) == 1.
+        @test calc_r_department(d_matched, indptr, d_prefs) == 1.
     end
     @testset "calc_r_student" begin
         @test calc_r_student(s_matched, s_prefs) == 1.5
