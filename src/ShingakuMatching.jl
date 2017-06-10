@@ -96,14 +96,14 @@ function get_prefs(
     f_prefs =Vector{Int}[]
 
     for s_id in 1:num_s
-        raw_s_pref = sort(1:num_f, by=f_id -> student_utility[f_id, s_id])
+        raw_s_pref = sort(1:num_f, by=f_id -> student_utility[f_id, s_id], rev=true)
         s_pref = filter(f_id -> students[s_id].current_faculty in faculties[f_id].available_for, raw_s_pref)
 
         push!(s_prefs, max_candidates > 0 ? collect(take(s_pref, max_candidates)) : s_pref)
     end
 
     for f_id in 1:num_f
-        raw_f_pref = sort(1:num_s, by=s_id -> faculty_utility[s_id, f_id])
+        raw_f_pref = sort(1:num_s, by=s_id -> faculty_utility[s_id, f_id], rev=true)
         push!(f_prefs, collect(raw_f_pref))
     end
 
