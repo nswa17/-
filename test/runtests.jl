@@ -1,6 +1,5 @@
 using Base.Test
 using ShingakuMatching
-import Distributions: Logistic
 
 @testset "Testing ShingakuMatching.jl" begin
     faculties = read_faculties()

@@ -20,7 +20,7 @@ function read_faculties(filename=dirname(@__FILE__)*"/../dat/faculties_and_caps_
     return _generate_faculties(size(df, 1), collect(df[:2]), collect(df[:3]))
 end
 
-function _generate_faculties(faculties_num::Int, caps::Vector{Int}, available_for_list::Vector{Vector{Int}})
+function _generate_faculties(faculties_num::Int, caps::Vector{Int}, available_for_list::Vector{Int})
     faculties = Array(Faculty, faculties_num)
     for i in 1:faculties_num
         if available_for_list[i] == 4# 文1, 2, 3類
