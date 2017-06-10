@@ -1,5 +1,5 @@
 # ShingakuMatching.jl
-tools for simulation of 東大第二段階進学選択 in Julia
+tools for simulating 東大第二段階進学選択 in Julia.
 
 ## Docs
 
@@ -109,9 +109,9 @@ returns `r_student::Float64`
 
 ## Usage
 
-1. Clone this repository as a Julia module.
+1. Clone this repository in Julia.
 ```julia
-> Pkg.clone("https://github.com/nswa17/ShingakuMatching")
+Pkg.clone("https://github.com/nswa17/ShingakuMatching")
 ```
 
 2. Call ShingakuMatching.jl in Julia.
