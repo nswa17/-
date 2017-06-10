@@ -1,78 +1,129 @@
-# 進学選択シミュレーション
-
-## 企画意図
-## many to one DA algorithm
-### Example
+# ShingakuMatching.jl
+tools for simulation of 東大第二段階進学選択 in Julia
 
 ### 前提
 学生が入りたい学科をリストにし, 学科が定員以下の人数の学生を成績順に受け入れる.
-学生の成績分布は正規分布に従うと仮定.
-<!-- 実際の成績分布のデータも利用.-->
-
-### 学生側の選好
-学科ごとにその特色を示すパラメータ(0.0~1.0)を設定し, 学生は自らの選好のパラメータと近い学科で, かつ自分への枠があるものへと応募する.
-
-学生の選好は自らの成績と選好のパラメータに依存する.
-
-### 学科側の選好
-応募してきた人の成績順に学生を選好する.
 
 ### マッチング例
 
-## 使い方
+## Docs
 
-```julia
-using DataFrames
-using PyPlot
-using ExcelReaders
+### Types
 
-include("functions.jl")
-student_num = 3000 #student number
-mu = 0.5 #mean of scores students have (now must be standardized to [0, 1])
-sigma2 = 0.2 #variance of students scores
-sigma2_error = 0.05 #variance of the error the score has
-preference = 0.5 #how much students want to persue their preference [0 ~ 1]
-
-faculties_list = read_faculty_data("revised.csv", student_num)
-faculty_num = length(faculties_list)
-students_list = generate_students(student_num, mu, sigma2, sigma2_error, faculty_num, () -> preference)
-
-set_prefs_faculties(faculties_list, students_list)
-set_prefs_students(students_list, faculties_list)
-
-s_prefs = generate_prefs(students_list)
-s_real_prefs = get_real_prefs(students_list)
-f_prefs = generate_prefs(faculties_list)
-caps = generate_caps(faculties_list)
-
-s_matched, f_matched, indptr = DA.call_match(s_prefs, f_prefs, caps)# call matching
-```
-
-### 学科
+### Faculty
 ```julia
 type Faculty
-    name::AbstractString
     id::Int
-    prefs::Array{Int, 1}
-    preference::Float64
-    level::Float64
     cap::Int
-    available_for::Array{Int, 1}
+    available_for::Vector{Int}#その類の人のみがfacultyに応募できる.
 end
 ```
-### 学生
+
+### Student
 ```julia
 type Student
     id::Int
-    level::Float64
-    preference::Float64
-    current_faculty::Int
-    prefs::Array{Int, 1}
-    real_prefs::Array{Int, 1}
-    preference_first::Float64
+    current_faculty::Int#所属する科類 文一 => 1, 理一 => 4
 end
 ```
 
-### 参考
+### Functions
 
-[資料excel版](https://docs.google.com/spreadsheets/d/1Eh9KEQBeeXc6N6NR-eAvHXZkE4czKjHER_Bl5_mHlWs/edit?usp=sharing)
+### read_faculties
+
+    read_faculties{T <: AbstractString}([filename::T])
+
+第二段階定数データの取り込み.
+
+returns faculties::Vector{Faculty}
+
+### generate_students
+
+    generate_students(students_num::Int[, current_faculties::Vector{Int}])
+
+第二引数未設定の場合科類をランダムに割り当てる.
+
+returns students::Vector{Student}
+
+### get_random_prefs
+
+    get_random_prefs(
+        faculties::Vector{Faculty},
+        students::Vector{Student}
+        [;beta::Float64,
+        gamma::Float64,
+        faculty_vertical_dist::UnivariateDistribution,
+        student_vertical_dist::UnivariateDistribution,
+        faculty_relative_dist::UnivariateDistribution,
+        student_relative_dist::UnivariateDistribution,
+        error_dist::UnivariateDistribution,
+        seed::Int,
+        max_candidates::Int]
+        )
+
+Random Utility Model(Hitsch et al. (2010))の下でpreferenceをランダムに生成.
+
+具体的には, 全アクターが２つのcharacteristics, $x^A$ and $x^D$をもち, $i$が$j$とマッチする事による効用は,
+$$
+u_i(j) = \beta x^A_j - \gamma(x^D_i - x^D_j )^2 + \epsilon_{ij}
+$$
+によって与えられる. この効用のもとで学部・生徒は選好を持つ.　ただし生徒に関しては応募資格のある学部のみに応募するようにする.
+
+x^Aはすべての人に望ましいvertical qualityとし, x^Dは場所・位置とみなす. beta, gammaは学部・生徒共通のものとする.
+$\epsilon_{ij}$ はペア$(i, j)$に対するidiosyncratic termである.
+
+各生徒の応募数に制限をかけたい時にはmax_candidatesに制限数を渡す. (デフォルト0: 制限なし)
+
+returns s_prefs::Vector{Vector{Int}}, f_prefs::Vector{Vector{Int}}, caps::Vector{Int}
+
+### get_prefs
+
+    get_prefs(
+        faculties::Vector{Faculty},
+        students::Vector{Student},
+        faculty_utility::Array{Float64, 2},
+        student_utility::Array{Float64, 2};
+        max_candidates::Int
+        )
+
+学部, 生徒のutilityを指定して選好表を生成.
+
+returns s_prefs::Vector{Vector{Int}}, f_prefs::Vector{Vector{Int}}, caps::Vector{Int}
+
+### calc_r_faculty
+
+マッチした学部全体について, 選好表におけるマッチ相手の生徒の順位を平均した値を返す.
+
+returns r_faculty::Int
+
+### calc_r_student
+
+マッチした生徒全員について, 選好表におけるマッチ先の学部の順位を平均した値を返す.
+
+returns r_student::Int
+
+## Usage
+
+1. Clone this repository as a Julia module.
+```julia
+> Pkg.clone("https://github.com/nswa17/ShingakuMatching")
+```
+
+2. Call ShingakuMatching.jl in Julia.
+
+```julia
+using ShingakuMatching
+
+faculties = read_faculties()
+
+s_num = 3000 #number of students
+students = generate_students(s_num)
+
+s_prefs, f_prefs, caps = get_prefs(faculties, students)
+
+s_matched, f_matched, indptr = deferred_acceptance(s_prefs, f_prefs, caps)# call deferred_acceptance algorithm
+```
+
+### Reference
+
+[進学振分け準則・進学者受入予定表等 - 総合文化研究科](http://www.c.u-tokyo.ac.jp/zenki/news/kyoumu/file/2014/h27_shinfuritebiki.pdf)
