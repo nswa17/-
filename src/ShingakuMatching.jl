@@ -45,7 +45,7 @@ function generate_students(students_num::Int, current_faculties=rand([1, 2, 3, 5
     return students
 end
 
-function utility_factory(beta::Float64, gamma::Float64, target_vertical_quality_list::Vector{Int}, relative_quality_list::Vector{Int}, target_relative_quality_list::Vector{Int}, error_dist::UnivariateDistribution)
+function utility_factory(beta::Float64, gamma::Float64, target_vertical_quality_list::Vector{Float64}, relative_quality_list::Vector{Float64}, target_relative_quality_list::Vector{Float64}, error_dist::UnivariateDistribution)
     return function(id, target_id)
         return beta * target_vertical_quality_list[target_id] - gamma * (relative_quality_list[id] - relative_quality_list[target_id])^2 + rand(error_dist)
     end
@@ -119,13 +119,11 @@ function get_prefs(
 end
 
 function calc_r_faculty(f_matched::Vector{Int}, indptr::Vector{Int}, f_prefs::Vector{Vector{Int}})
-    matched_num = 0
+    matched_num = length(f_matched)
     sum_rank = 0
     for f_id in 1:length(indptr)-1
         for ind in indptr[f_id]:indptr[f_id+1]-1
             s_id = f_matched[ind]
-            s_id == 0 && break
-            matched_num += 1
             sum_rank += findfirst(f_prefs[f_id], s_id)
         end
     end
