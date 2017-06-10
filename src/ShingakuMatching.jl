@@ -46,9 +46,10 @@ function generate_students(students_num::Int, current_faculties=rand([1, 2, 3, 5
 end
 
 function utility_factory(beta::Float64, gamma::Float64, target_vertical_quality_list::Vector{Int}, relative_quality_list::Vector{Int}, target_relative_quality_list::Vector{Int}, error_dist::UnivariateDistribution)
-    return function(id, target_id)
+    function utility(id, target_id)
         return beta * target_vertical_quality_list[target_id] - gamma * (relative_quality_list[id] - relative_quality_list[target_id])^2 + rand(error_dist)
     end
+    return utility
 end
 
 function f_utility_factory
