@@ -12,7 +12,7 @@ tools for simulating 東大第二段階進学選択 in Julia.
 type Department
     id::Int
     cap::Int#募集人数
-    available_for::Vector{Int}#その類の人のみがDepartmentに応募できる.
+    lower_streams::Vector{Int}#その類の人のみがDepartmentに応募できる.
 end
 ```
 

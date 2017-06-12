@@ -12,7 +12,7 @@ end
 type Department
     id::Int
     cap::Int
-    available_for::Vector{Int}
+    lower_streams::Vector{Int}
 end
 
 function read_data(filename=dirname(@__FILE__)*"/../dat/departments_and_caps_data_2014.csv")
@@ -20,19 +20,19 @@ function read_data(filename=dirname(@__FILE__)*"/../dat/departments_and_caps_dat
     return _generate_departments(size(df, 1), collect(df[:2]), collect(df[:3]))
 end
 
-function _generate_departments(num_d::Int, caps::Vector{Int}, available_for_list::Vector{Int})
+function _generate_departments(num_d::Int, caps::Vector{Int}, lower_stream_list::Vector{Int})
     departments = Array(Department, num_d)
     for i in 1:num_d
-        if available_for_list[i] == 4# 文1, 2, 3類
-            available_for = [1, 2, 3]
-        elseif available_for_list[i] == 8# 理1, 2, 3類
-            available_for = [5, 6, 7]
-        elseif available_for_list[i] == 9# 文理1, 2, 3類
-            available_for = [1, 2, 3, 5, 6, 7]
+        if lower_stream_list[i] == 4# 文1, 2, 3類
+            lower_streams = [1, 2, 3]
+        elseif lower_stream_list[i] == 8# 理1, 2, 3類
+            lower_streams = [5, 6, 7]
+        elseif lower_stream_list[i] == 9# 文理1, 2, 3類
+            lower_streams = [1, 2, 3, 5, 6, 7]
         else
-            available_for = [available_for_list[i]]
+            lower_streams = [lower_stream_list[i]]
         end
-        departments[i] = Department(i, caps[i], available_for)
+        departments[i] = Department(i, caps[i], lower_streams)
     end
     return departments
 end
@@ -103,14 +103,14 @@ function get_prefs(
 
     for s_id in 1:num_s
         raw_s_pref = sort(1:num_d, by=d_id -> student_utility[d_id, s_id], rev=true)
-        s_pref = filter(d_id -> students[s_id].stream in departments[d_id].available_for, raw_s_pref)
+        s_pref = filter(d_id -> students[s_id].stream in departments[d_id].lower_streams, raw_s_pref)
 
         push!(s_prefs, max_applications > 0 ? collect(take(s_pref, max_applications)) : s_pref)
     end
 
     for d_id in 1:num_d
         raw_d_pref = sort(1:num_s, by=s_id -> department_utility[s_id, d_id], rev=true)
-        d_pref = filter(s_id -> students[s_id].stream in departments[d_id].available_for, raw_d_pref)
+        d_pref = filter(s_id -> students[s_id].stream in departments[d_id].lower_streams, raw_d_pref)
 
         push!(d_prefs, collect(d_pref))
     end
