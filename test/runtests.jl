@@ -9,7 +9,7 @@ import Distributions: Bernoulli
         @testset "_generate_data" begin
             generated_deps = ShingakuMatching._generate_departments(4, ones(Int, 4), [1, 9, 4, 8])
             lower_streams_list = [[1], [1, 2, 3, 5, 6, 7], [1, 2, 3], [5, 6, 7]]
-            for (generated_dep, lower_streams) in zip(generated_deps, lower_stream_list)
+            for (generated_dep, lower_streams) in zip(generated_deps, lower_streams_list)
                 @test generated_dep.lower_streams == lower_streams
             end
         end
