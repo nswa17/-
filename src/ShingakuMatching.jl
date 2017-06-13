@@ -47,14 +47,12 @@ function generate_students(students_num::Int,
     return students
 end
 
-function utility_factory(
-    beta::Float64,
-    gamma::Float64,
-    target_vertical_quality_list::Vector{Float64},
-    relative_quality_list::Vector{Float64},
-    target_relative_quality_list::Vector{Float64},
-    error_dist::UnivariateDistribution
-    )
+function utility_factory(beta::Float64,
+                         gamma::Float64,
+                         target_vertical_quality_list::Vector{Float64},
+                         relative_quality_list::Vector{Float64},
+                         target_relative_quality_list::Vector{Float64},
+                         error_dist::UnivariateDistribution)
     return function(id, target_id)
         return beta * target_vertical_quality_list[target_id] -
                gamma * (relative_quality_list[id] - target_relative_quality_list[target_id])^2 +
@@ -104,7 +102,7 @@ function get_prefs(departments::Vector{Department},
                    department_utility::Array{Float64, 2},
                    student_utility::Array{Float64, 2};
                    max_applications::Int=0)
-                   
+
     num_d = length(departments)
     num_s = length(students)
 
