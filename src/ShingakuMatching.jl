@@ -1,5 +1,6 @@
 module ShingakuMatching
-    export read_data, generate_students, get_random_prefs, get_prefs, calc_r_department, calc_r_student
+    export read_data, generate_students, get_random_prefs,
+           get_prefs, calc_r_department, calc_r_student
 
 using DataFrames
 import Distributions: Uniform, UnivariateDistribution, rand, Logistic
@@ -37,7 +38,8 @@ function _generate_departments(num_d::Int, caps::Vector{Int}, lower_stream_list:
     return departments
 end
 
-function generate_students(students_num::Int, streams=rand([1, 2, 3, 5, 6, 7], students_num))
+function generate_students(students_num::Int,
+                           streams::Vector{Int}=rand([1, 2, 3, 5, 6, 7], students_num))
     students = Array(Student, students_num)
     for (i, stream) in enumerate(streams)
         students[i] = Student(i, stream)
@@ -45,25 +47,32 @@ function generate_students(students_num::Int, streams=rand([1, 2, 3, 5, 6, 7], s
     return students
 end
 
-function utility_factory(beta::Float64, gamma::Float64, target_vertical_quality_list::Vector{Float64}, relative_quality_list::Vector{Float64}, target_relative_quality_list::Vector{Float64}, error_dist::UnivariateDistribution)
+function utility_factory(
+    beta::Float64,
+    gamma::Float64,
+    target_vertical_quality_list::Vector{Float64},
+    relative_quality_list::Vector{Float64},
+    target_relative_quality_list::Vector{Float64},
+    error_dist::UnivariateDistribution
+    )
     return function(id, target_id)
-        return beta * target_vertical_quality_list[target_id] - gamma * (relative_quality_list[id] - target_relative_quality_list[target_id])^2 + rand(error_dist)
+        return beta * target_vertical_quality_list[target_id] -
+               gamma * (relative_quality_list[id] - target_relative_quality_list[target_id])^2 +
+               rand(error_dist)
     end
 end
 
-function get_random_prefs(
-    departments::Vector{Department},
-    students::Vector{Student};
-    beta::Float64=0.7,
-    gamma::Float64=0.2,
-    department_vertical_dist::UnivariateDistribution=Uniform(0, 1),
-    student_vertical_dist::UnivariateDistribution=Uniform(0, 1),
-    department_relative_dist::UnivariateDistribution=Uniform(0, 1),
-    student_relative_dist::UnivariateDistribution=Uniform(0, 1),
-    error_dist::UnivariateDistribution=Logistic(),
-    seed::Int=0,
-    max_applications::Int=0
-    )
+function get_random_prefs(departments::Vector{Department},
+                          students::Vector{Student};
+                          beta::Float64=0.7,
+                          gamma::Float64=0.2,
+                          department_vertical_dist::UnivariateDistribution=Uniform(0, 1),
+                          student_vertical_dist::UnivariateDistribution=Uniform(0, 1),
+                          department_relative_dist::UnivariateDistribution=Uniform(0, 1),
+                          student_relative_dist::UnivariateDistribution=Uniform(0, 1),
+                          error_dist::UnivariateDistribution=Logistic(),
+                          seed::Int=0,
+                          max_applications::Int=0)
     srand(seed)
     num_d = length(departments)
     num_s = length(students)
@@ -72,8 +81,10 @@ function get_random_prefs(
     department_relative_quality_list = rand(department_relative_dist, num_d)
     student_relative_quality_list = rand(student_relative_dist, num_s)
 
-    s_utility = utility_factory(beta, gamma, department_vertical_quality_list, student_relative_quality_list, department_relative_quality_list, error_dist)
-    d_utility = utility_factory(beta, gamma, student_vertical_quality_list, department_relative_quality_list, student_relative_quality_list, error_dist)
+    s_utility = utility_factory(beta, gamma, department_vertical_quality_list,
+                                student_relative_quality_list, department_relative_quality_list, error_dist)
+    d_utility = utility_factory(beta, gamma, student_vertical_quality_list,
+                                department_relative_quality_list, student_relative_quality_list, error_dist)
 
     department_utility = Array(Float64, num_s, num_d)
     student_utility = Array(Float64, num_d, num_s)
@@ -84,16 +95,16 @@ function get_random_prefs(
         end
     end
 
-    return get_prefs(departments, students, department_utility, student_utility, max_applications=max_applications)
+    return get_prefs(departments, students, department_utility,
+                     student_utility, max_applications=max_applications)
 end
 
-function get_prefs(
-    departments::Vector{Department},
-    students::Vector{Student},
-    department_utility::Array{Float64, 2},
-    student_utility::Array{Float64, 2};
-    max_applications::Int=0
-    )
+function get_prefs(departments::Vector{Department},
+                   students::Vector{Student},
+                   department_utility::Array{Float64, 2},
+                   student_utility::Array{Float64, 2};
+                   max_applications::Int=0)
+                   
     num_d = length(departments)
     num_s = length(students)
 
