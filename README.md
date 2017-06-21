@@ -1,7 +1,7 @@
 # ShingakuMatching.jl
-tools for simulating 東大第二段階進学選択 in Julia.
+tools for simulating 東大第二段階進学選択 in Julia 0.6.
 
-実際の第二段階定数データを読み込み, Random Utility Modelの下でのpreferenceを返す関数を提供します.
+実際の第二段階定数データを読み込む関数や, Random Utility Modelの下でのpreferenceを返す関数などを提供.
 
 ## Docs
 
@@ -18,7 +18,7 @@ end
 #### Student
 ```julia
 struct Student
-    stream::Int#所属する科類 文一 => 1, 理一 => 4
+    stream::Int#所属する科類 文一 => 1, 理一 => 5
 end
 ```
 
@@ -38,7 +38,9 @@ returns `departments::Vector{Department}`
 get_students(num_students::Int[, streams::Vector{Int}])
 ```
 
-第二引数未設定の場合科類をランダムに割り当てる.
+streamsは科類の配列. ただし文科1,2,3類は1, 2, 3、理科1,2,3類は5, 6, 7で表す.
+
+第二引数未設定の場合科類をランダムに(各科類の割合が一様になるように)割り当てる.
 
 returns `students::Vector{Student}`
 
@@ -58,6 +60,8 @@ get_random_prefs(
     max_applications::Int]
     )
 ```
+
+UnivariateDistributionは[Distributions.jl](http://distributionsjl.readthedocs.io/en/latest/)で定義されるUnivariateDistributionを意味する.
 
 Random Utility Model(Hitsch et al. (2010))の下でpreferenceをランダムに生成.
 
@@ -94,7 +98,7 @@ returns `s_prefs::Vector{Vector{Int}}, d_prefs::Vector{Vector{Int}}, caps::Vecto
 calc_r_department(d_matched::Vector{Int}, indptr::Vector{Int}, d_prefs::Vector{Vector{Int}})
 ```
 
-マッチした学部全体について, 選好表におけるマッチ相手の生徒の順位を平均した値を返す.
+マッチした学部全体について, それぞれの持つ選好表におけるマッチ相手の生徒の順位を平均した値を返す.
 
 returns `r_department::Float64`
 
@@ -103,7 +107,7 @@ returns `r_department::Float64`
 calc_r_student(s_matched::Vector{Int}, s_prefs::Vector{Vector{Int}})
 ```
 
-マッチした生徒全員について, 選好表におけるマッチ先の学部の順位を平均した値を返す.
+マッチした生徒全員について, それぞれの持つ選好表におけるマッチ先の学部の順位を平均した値を返す.
 
 returns `r_student::Float64`
 
@@ -126,10 +130,16 @@ using ShingakuMatching
 
 departments = get_departments()
 
-num_students = 3000 #number of students
+num_students = 300 #number of students
 students = get_students(num_students)
 
-s_prefs, d_prefs, caps = get_random_prefs(departments, students)
+s_prefs, d_prefs, caps = get_random_prefs(students, departments)
+```
+
+4. Use your own implementation of (many-to-one) deferred acceptance algorithm.
+
+```julia
+s_matched, d_matched, indptr = deferred_acceptance(s_prefs, d_prefs, caps)
 ```
 
 ## Reference
