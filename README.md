@@ -26,18 +26,18 @@ end
 
 ### Functions
 
-#### read_data
+#### get_departments
 ```julia
-read_data{T <: AbstractString}([filename::T])
+get_departments{T <: AbstractString}([filename::T])
 ```
 
 第二段階定数データの取り込み.
 
 returns `departments::Vector{Department}`
 
-#### generate_students
+#### get_students
 ```julia
-generate_students(students_num::Int[, streams::Vector{Int}])
+get_students(num_students::Int[, streams::Vector{Int}])
 ```
 
 第二引数未設定の場合科類をランダムに割り当てる.
@@ -126,10 +126,10 @@ Pkg.test("ShingakuMatching")
 ```julia
 using ShingakuMatching
 
-departments = read_data()
+departments = get_departments()
 
-s_num = 3000 #number of students
-students = generate_students(s_num)
+num_students = 3000 #number of students
+students = get_students(num_students)
 
 s_prefs, d_prefs, caps = get_random_prefs(departments, students)
 ```
