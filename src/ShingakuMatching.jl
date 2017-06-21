@@ -93,7 +93,7 @@ function get_random_prefs(students::Vector{Student},
         end
     end
 
-    return get_prefs(departments, students, department_utility,
+    return get_prefs(students, departments, department_utility,
                      student_utility, max_applications=max_applications)
 end
 
