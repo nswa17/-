@@ -19,7 +19,6 @@ import Distributions: Bernoulli
         s_streams = [1, 2, 3, 5, 6, 7]
         students = get_students(num_studs, s_streams)
         for s_id in 1:num_studs
-            @test students[s_id].id == s_id
             @test students[s_id].stream == s_streams[s_id]
         end
     end
@@ -45,10 +44,10 @@ import Distributions: Bernoulli
     end
     num_studs = 2
     num_deps = 2
-    departments = [ShingakuMatching.Department(i, 0, [1, 2, 3, 5, 6, 7]) for i in 1:num_studs]
-    departments_capped = [ShingakuMatching.Department(i, 1, [1, 2, 3, 5, 6, 7]) for i in 1:num_studs]
-    departments_restricted = [ShingakuMatching.Department(i, 0, [7]) for i in 1:num_studs]
-    students = [ShingakuMatching.Student(i, rand([1, 2, 3, 5, 6])) for i in 1:num_deps]
+    departments = [ShingakuMatching.Department(0, [1, 2, 3, 5, 6, 7]) for i in 1:num_studs]
+    departments_capped = [ShingakuMatching.Department(1, [1, 2, 3, 5, 6, 7]) for i in 1:num_studs]
+    departments_restricted = [ShingakuMatching.Department(0, [7]) for i in 1:num_studs]
+    students = [ShingakuMatching.Student(rand([1, 2, 3, 5, 6])) for i in 1:num_deps]
     department_utility = [0.5 -0.5; -0.4 0.6]
     student_utility = [0.7 -0.3; -0.6 0.4]
     @testset "get_prefs" begin

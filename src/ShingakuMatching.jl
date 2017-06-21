@@ -6,12 +6,10 @@ using DataFrames
 import Distributions: Uniform, UnivariateDistribution, rand, Logistic
 
 struct Student
-    id::Int
     stream::Int
 end
 
 struct Department
-    id::Int
     cap::Int
     lower_streams::Vector{Int}
 end
@@ -33,7 +31,7 @@ function _generate_departments(num_deps::Int, caps::Vector{Int}, lower_stream_li
         else
             lower_streams = [lower_stream_list[i]]
         end
-        departments[i] = Department(i, caps[i], lower_streams)
+        departments[i] = Department(caps[i], lower_streams)
     end
     return departments
 end
@@ -42,7 +40,7 @@ function get_students(num_studs::Int,
                            streams::Vector{Int}=rand([1, 2, 3, 5, 6, 7], num_studs))
     students = Array{Student}(num_studs)
     for (i, stream) in enumerate(streams)
-        students[i] = Student(i, stream)
+        students[i] = Student(stream)
     end
     return students
 end
