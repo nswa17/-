@@ -5,12 +5,12 @@ module ShingakuMatching
 using DataFrames
 import Distributions: Uniform, UnivariateDistribution, rand, Logistic
 
-type Student
+struct Student
     id::Int
     stream::Int
 end
 
-type Department
+struct Department
     id::Int
     cap::Int
     lower_streams::Vector{Int}

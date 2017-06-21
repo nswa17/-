@@ -5,11 +5,11 @@ tools for simulating 東大第二段階進学選択 in Julia.
 
 ## Docs
 
-### Types
+### Structs
 
 #### Department
 ```julia
-type Department
+struct Department
     id::Int
     cap::Int#募集人数
     lower_streams::Vector{Int}#その類の人のみがDepartmentに応募できる.
@@ -18,7 +18,7 @@ end
 
 #### Student
 ```julia
-type Student
+struct Student
     id::Int
     stream::Int#所属する科類 文一 => 1, 理一 => 4
 end
