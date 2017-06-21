@@ -22,7 +22,7 @@ function read_data(filename=dirname(@__FILE__)*"/../dat/departments_and_caps_dat
 end
 
 function _generate_departments(num_d::Int, caps::Vector{Int}, lower_stream_list::Vector{Int})
-    departments = Array(Department, num_d)
+    departments = Array{Department}(num_d)
     for i in 1:num_d
         if lower_stream_list[i] == 4# 文1, 2, 3類
             lower_streams = [1, 2, 3]
@@ -40,7 +40,7 @@ end
 
 function generate_students(students_num::Int,
                            streams::Vector{Int}=rand([1, 2, 3, 5, 6, 7], students_num))
-    students = Array(Student, students_num)
+    students = Array{Student}(students_num)
     for (i, stream) in enumerate(streams)
         students[i] = Student(i, stream)
     end
@@ -84,8 +84,8 @@ function get_random_prefs(departments::Vector{Department},
     d_utility = utility_factory(beta, gamma, student_vertical_quality_list,
                                 department_relative_quality_list, student_relative_quality_list, error_dist)
 
-    department_utility = Array(Float64, num_s, num_d)
-    student_utility = Array(Float64, num_d, num_s)
+    department_utility = Array{Float64}(num_s, num_d)
+    student_utility = Array{Float64}(num_d, num_s)
     for d_id in 1:num_d
         for s_id in 1:num_s
             department_utility[s_id, d_id] = d_utility(d_id, s_id)
@@ -114,7 +114,7 @@ function get_prefs(departments::Vector{Department},
         raw_s_pref = sort(1:num_d, by=d_id -> student_utility[d_id, s_id], rev=true)
         s_pref = filter(d_id -> students[s_id].stream in departments[d_id].lower_streams, raw_s_pref)
 
-        push!(s_prefs, max_applications > 0 ? collect(take(s_pref, max_applications)) : s_pref)
+        push!(s_prefs, max_applications > 0 ? collect(Iterators.take(s_pref, max_applications)) : s_pref)
     end
 
     for d_id in 1:num_d
