@@ -60,8 +60,8 @@ function utility_factory(beta::Float64,
     end
 end
 
-function get_random_prefs(departments::Vector{Department},
-                          students::Vector{Student};
+function get_random_prefs(students::Vector{Student},
+                          departments::Vector{Department};
                           beta::Float64=0.7,
                           gamma::Float64=0.2,
                           department_vertical_dist::UnivariateDistribution=Uniform(0, 1),
@@ -97,8 +97,8 @@ function get_random_prefs(departments::Vector{Department},
                      student_utility, max_applications=max_applications)
 end
 
-function get_prefs(departments::Vector{Department},
-                   students::Vector{Student},
+function get_prefs(students::Vector{Student},
+                   departments::Vector{Department},
                    department_utility::Array{Float64, 2},
                    student_utility::Array{Float64, 2};
                    max_applications::Int=0)

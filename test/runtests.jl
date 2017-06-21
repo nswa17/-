@@ -53,21 +53,21 @@ import Distributions: Bernoulli
     student_utility = [0.7 -0.3; -0.6 0.4]
     @testset "get_prefs" begin
         @testset "without caps" begin
-            s_prefs, d_prefs, caps = get_prefs(departments, students, department_utility, student_utility)
+            s_prefs, d_prefs, caps = get_prefs(students, departments, department_utility, student_utility)
 
             @test s_prefs == [[1, 2], [2, 1]]
             @test d_prefs == [[1, 2], [2, 1]]
             @test caps == fill(num_studs, num_deps)
         end
         @testset "with caps" begin
-            s_prefs, d_prefs, caps = get_prefs(departments_capped, students, department_utility, student_utility)
+            s_prefs, d_prefs, caps = get_prefs(students, departments_capped, department_utility, student_utility)
 
             @test s_prefs == [[1, 2], [2, 1]]
             @test d_prefs == [[1, 2], [2, 1]]
             @test caps == ones(Int, num_deps)
         end
         @testset "with caps" begin
-            s_prefs, d_prefs, caps = get_prefs(departments_restricted, students, department_utility, student_utility)
+            s_prefs, d_prefs, caps = get_prefs(students, departments_restricted, department_utility, student_utility)
 
             @test s_prefs == [[], []]
             @test d_prefs == [[], []]

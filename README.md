@@ -47,8 +47,8 @@ returns `students::Vector{Student}`
 #### get_random_prefs
 ```julia
 get_random_prefs(
-    departments::Vector{Department},
-    students::Vector{Student}
+    students::Vector{Student},
+    departments::Vector{Department}
     [;beta::Float64,
     gamma::Float64,
     department_vertical_dist::UnivariateDistribution,
@@ -79,8 +79,8 @@ returns `s_prefs::Vector{Vector{Int}}, d_prefs::Vector{Vector{Int}}, caps::Vecto
 #### get_prefs
 ```julia
 get_prefs(
-    departments::Vector{Department},
     students::Vector{Student},
+    departments::Vector{Department},
     department_utility::Array{Float64, 2},
     student_utility::Array{Float64, 2}
     [;max_applications::Int]
