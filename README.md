@@ -37,8 +37,12 @@ returns `departments::Vector{Department}`
 ```julia
 get_students(num_students::Int[, streams::Vector{Int}])
 ```
+or
+```julia
+get_students(num_students::Int[, streams::DiscreteUnivariateDistribution])
+```
 
-streamsは科類の配列. ただし文科1,2,3類は1, 2, 3、理科1,2,3類は5, 6, 7で表す.
+streamsは科類の配列か,科類の値をとる離散確率分布. ただし文科1,2,3類は1, 2, 3、理科1,2,3類は5, 6, 7で表す.
 
 第二引数未設定の場合科類をランダムに(各科類の割合が一様になるように)割り当てる.
 
@@ -69,12 +73,14 @@ Random Utility Model(Hitsch et al. (2010))の下でpreferenceをランダムに�
 
 u_i(j) = beta * x^A_j - gamma * (x^D_i - x^D_j)^2 + epsilon_{ij}
 
-によって与えられる. この効用のもとで学部・生徒は選好を持つ.　ただし生徒に関しては応募資格のある学部のみに応募するようにする.
+によって与えられる. この効用のもとで学部・生徒は選好を持つ.　ただし生徒に関しては応募資格のある学部のみに応募し,学部についても受け付ける科類の学生のみに選考をもつようにする.
 
 x^Aはすべての人に望ましいvertical qualityとし, x^Dは場所・位置とみなす. beta, gammaは学部・生徒共通のものとする.
 epsilon_{ij} はペア(i, j)に対するidiosyncratic termである.
 
 各生徒の応募数に制限をかけたい時にはmax_applicationsに制限数を渡す. (デフォルト0: 制限なし)
+
+![Model](Model.png)
 
 returns `s_prefs::Vector{Vector{Int}}, d_prefs::Vector{Vector{Int}}, caps::Vector{Int}`
 

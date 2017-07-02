@@ -3,7 +3,7 @@ module ShingakuMatching
            get_prefs, calc_r_department, calc_r_student
 
 using DataFrames
-import Distributions: Uniform, UnivariateDistribution, rand, Logistic
+import Distributions: Uniform, UnivariateDistribution, DiscreteUnivariateDistribution, rand, Logistic
 
 struct Student
     stream::Int
@@ -37,11 +37,17 @@ function _generate_departments(num_deps::Int, caps::Vector{Int}, lower_stream_li
 end
 
 function get_students(num_studs::Int,
-                           streams::Vector{Int}=rand([1, 2, 3, 5, 6, 7], num_studs))
+                      streams::Vector{Int}=rand([1, 2, 3, 5, 6, 7], num_studs))
     students = Array{Student}(num_studs)
     for (i, stream) in enumerate(streams)
         students[i] = Student(stream)
     end
+    return students
+end
+
+function get_students(num_studs::Int,
+                      streams::DiscreteUnivariateDistribution)
+    students = Array{Student}[Student(rand(streams))]
     return students
 end
 
